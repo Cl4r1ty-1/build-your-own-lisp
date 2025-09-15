@@ -25,7 +25,25 @@ int main(int argc, char const *argv[])
     p.y = 10.0;
 
     float length = sqrt(p.x * p.x + p.y * p.y);
-    
+
+    int x = 35;
+
+    if (x > 10 && x < 100) {
+        puts("x is greater than blah blah");
+    } else {
+        puts("x is less than blah blah");
+    }
+
+    int i = 10;
+    while (i > 0) {
+        puts("Loop iteration");
+        i--;
+    }
+
+    for (int i = 0; i < 10; i++) {
+        puts("Loop iteration");
+    }
+
     return 0;
 }
 
