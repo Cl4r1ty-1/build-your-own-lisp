@@ -1,20 +1,41 @@
 #include <stdio.h>
+#include <stdlib.h>
 
+#ifdef _WIN32
+#include <string.h>
 
-/* Buffer for user input */
-static char input[2048];
+static char buffer[2048];
+
+char* readline(char* prompt) {
+    fputs(prompt, stdout);
+    fgets(buffer, 2048, stdin);
+    char* cpy = malloc(strlen(buffer)+1);
+    strcpy(cpy, buffer);
+    cpy[strlen(cpy)-1] = '\0';
+    return cpy;
+}
+
+void add_history(char* unused) {}
+
+#else
+#include <editline/readline.h>
+#include <editline/history.h>
+#endif
 
 int main(int argc, char** argv) {
     puts("Lispy Version 0.0.0.0.1");
     puts("Press Ctrl+c to Exit\n");
+    puts("Interpreter Console");
 
     while (1) {
 
-        fputs("lispy> ", stdout);
+        char* input = readline("aura> ");
 
-        fgets(input, 2048, stdin);
+        add_history(input);
 
-        printf("No you're a %s", input);
+        printf("Wait...%s is a thing??\n", input);
+
+        free(input);
     }
 
     return 0;
