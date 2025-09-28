@@ -30,15 +30,17 @@ int main(int argc, char** argv) {
     mpc_parser_t* Lispy = mpc_new("lispy");
 
     mpca_lang(MPCA_LANG_DEFAULT, 
-        "                                                \
+        "                                                 \
             number   : /-?[0-9]+/ ;                                \
-            operator : '+' | '-' | '*' | '/' ;                     \
-            expr     : <number> | '(' <operator> <expr>+ /$/ ')' ; \
-            lispy    :   ");
+            operator : '+' | '-' | '*' | '/' | '%' ;                     \
+            expr     : <number> | '(' <operator> <expr>+ ')' ; \
+            lispy    : /^/ <operator> <expr>+ /$/ ;            \
+            ", 
+            Number, Operator, Expr, Lispy); 
 
 
 
-    puts("Lispy Version 0.0.0.0.1");
+    puts("Lispy Version 0.0.0.0.2");
     puts("Press Ctrl+c to Exit\n");
     puts("Interpreter Console");
 
@@ -48,10 +50,18 @@ int main(int argc, char** argv) {
 
         add_history(input);
 
-        printf("Wait...%s is a thing??\n", input);
+        mpc_result_t r;
+        if (mpc_parse("<stdin>", input, Lispy, &r)) {
+            mpc_ast_print(r.output);
+            mpc_ast_delete(r.output);
+        } else {
+            mpc_err_print(r.error);
+            mpc_err_delete(r.error);
+        };
 
         free(input);
     }
 
+    mpc_cleanup(4, Number, Operator, Expr, Lispy);
     return 0;
 }
