@@ -20,15 +20,18 @@ void add_history(char* unused) {}
 
 #else
 #include <editline/readline.h>
-#include <histedit.h>
+#include <editline/history.h>
 #endif
 
 long eval_op(long x, char* op, long y) {
-    if (strcmp(op, "+") == 0) { return x + y; }
-    if (strcmp(op, "-") == 0) { return x - y; }
-    if (strcmp(op, "*") == 0) { return x * y; }
-    if (strcmp(op, "/") == 0) { return x / y; }
-    if (strcmp(op, "%") == 0) { return x % y; }
+    if ((strcmp(op, "+") == 0) || (strcmp(op, "add") == 0)) { return x + y; }
+    if ((strcmp(op, "-") == 0) || (strcmp(op, "sub") == 0)) { return x - y; }
+    if ((strcmp(op, "*") == 0) || (strcmp(op, "mul") == 0)) { return x * y; }
+    if ((strcmp(op, "/") == 0) || (strcmp(op, "div") == 0)) { return x / y; }
+    if ((strcmp(op, "%") == 0) || (strcmp(op, "mod") == 0)) { return x % y; }
+    if ((strcmp(op, "^") == 0) || (strcmp(op, "pow") == 0)) { return x ^ y; }
+    if (strcmp(op, "min") == 0) { return (x < y) ? x : y; }
+    if (strcmp(op, "max") == 0) { return (x > y) ? x : y; }
     return 0;
 }
 
@@ -38,9 +41,20 @@ long eval(mpc_ast_t* t) {
         return atoi(t->contents);
     }
 
-    char* op = t->children[2]->contents;
+    char* op = t->children[1]->contents;
 
-    long x = eval(t->children[1]);
+    long x = eval(t->children[2]);
+
+    /* check if - has a one argument, if so negate it */
+    if ((strcmp(op, "-") == 0) || (strcmp(op, "sub") == 0)) {
+        int expr_children = 0;
+        for (int i = 2; i < t->children_num; i++) {
+            if (strstr(t->children[i]->tag, "expr")) { expr_children++; }
+        }
+        if (expr_children == 1){
+            return -x;
+        }
+    }
 
     int i = 3;
     while (strstr(t->children[i]->tag, "expr")) {
@@ -58,17 +72,17 @@ int main(int argc, char** argv) {
     mpc_parser_t* Lispy = mpc_new("lispy");
 
     mpca_lang(MPCA_LANG_DEFAULT, 
-        "                                                 \
-            number   : /-?([0-9]+[.])?[0-9]+/ ;                                \
-            operator : '+' | '-' | '*' | '/' | '%' | \"add\" | \"sub\" | \"mul\" | \"div\" | \"mod\";                     \
-            expr     : <number> | '(' <expr> <operator> <expr> ')' ; \
-            lispy    : /^/ <expr> <operator> <expr> /$/ ;            \
+        "                                                                                                                                   \
+            number   : /-?([0-9]+[.])?[0-9]+/ ;                                                                                             \
+            operator : '+' | '-' | '*' | '/' | '%' | '^' | \"add\" | \"sub\" | \"mul\" | \"div\" | \"mod\" | \"pow\" | \"min\" | \"max\";   \
+            expr     : <number> | '(' <operator> <expr>+ ')' ;                                                                              \
+            lispy    : /^/ <operator> <expr>+ /$/ ;                                                                                         \
             ", 
             Number, Operator, Expr, Lispy); 
 
 
 
-    puts("Lispy Version 0.0.0.0.2");
+    puts("Lispy Version 0.0.0.0.3");
     puts("Press Ctrl+c to Exit\n");
     puts("Interpreter Console");
 
