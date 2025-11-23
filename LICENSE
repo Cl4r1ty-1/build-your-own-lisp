@@ -2,7 +2,7 @@ BSD 3-Clause License
 
 Copyright (c) 2025, Daniel Holden, Ben (Cl4r1ty)
 
-All source code is either my (Ben) original code, or has been derived from the code in the tutorial from the book ["Build Your Own Lisp"](https://www.buildyourownlisp.com/) by Daniel Holden
+All source code is either my (Ben) original code, or has been derived from the code in the tutorial from the book "Build Your Own Lisp" by Daniel Holden
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
