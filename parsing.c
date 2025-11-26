@@ -26,6 +26,12 @@ void add_history(char* unused) {}
 #define LASSERT(args, cond, err) \
   if (!(cond)) { lval_del(args); return lval_err(err); }
 
+#define AASSERT(args, n_args, err) \
+  if (args->count != n_args) { lval_del(args); return lval_err(err); }
+
+#define EASSERT(args, err) \
+  if (args->cell[0]->count == 0) { lval_del(args); return lval_err(err); }
+
 /* lval types */
 enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR };
 
@@ -282,7 +288,7 @@ lval* builtin_op(lval* a, char* op) {
 
 lval* builtin_head(lval* a) {
     /* ensure 'a' is valid*/
-    LASSERT(a, a->count == 1,
+    AASSERT(a, 1,
         "Function 'head' passed too mant arguments!");
     LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
         "Function 'head' passed incorrect type!");
