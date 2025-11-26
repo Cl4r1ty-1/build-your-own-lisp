@@ -289,7 +289,7 @@ lval* builtin_op(lval* a, char* op) {
 lval* builtin_head(lval* a) {
     /* ensure 'a' is valid*/
     AASSERT(a, 1,
-        "Function 'head' passed too mant arguments!");
+        "Function 'head' passed too many arguments!");
     LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
         "Function 'head' passed incorrect type!");
     LASSERT(a, a->cell[0]->count != 0,
@@ -306,7 +306,7 @@ lval* builtin_head(lval* a) {
 lval* builtin_tail(lval* a) {
     /* same checks as builtin_head */
     LASSERT(a, a->count == 1,
-        "Function 'tail' passed too mant arguments!");
+        "Function 'tail' passed too many arguments!");
     LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
         "Function 'tail' passed incorrect type!");
     LASSERT(a, a->cell[0]->count != 0,
