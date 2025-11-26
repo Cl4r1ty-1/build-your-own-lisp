@@ -353,12 +353,59 @@ lval* builtin_join(lval* a) {
     return x;
 }
 
+lval* builtin_cons(lval* a) {
+    AASSERT(a, 2, 
+        "Function 'cons' passed incorect number of arguments!")
+    /* check 2nd argument is a q-expr*/
+    LASSERT(a, a->cell[1]->type == LVAL_QEXPR,
+        "Function 'cons' passed an incorrect type.")
+
+    /* first arg is the value, second is the qexpr to modify */    
+    lval* v = lval_pop(a, 0);
+    lval* x = lval_pop(a, 0);
+
+    x->count++;
+    x->cell = realloc(x->cell, sizeof(lval*) * x->count);
+    memmove(&x->cell[1], &x->cell[0], sizeof(lval*) * (x->count - 1));
+    x->cell[0] = v;
+    
+    return x;
+}
+
+lval* builtin_len(lval* a) {
+    AASSERT(a, 1,
+        "Function 'len' passed too many arguments")
+    LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
+        "Function 'len' passed an incorrect type.")
+
+    return lval_num(a->cell[0]->count);
+}
+
+lval* builtin_init(lval* a) {
+    AASSERT(a, 1,
+        "Function 'init' passed too many arguments")
+    LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
+        "Function 'init' passed an incorrect type.")
+    EASSERT(a, "Function 'init' passed {}!")
+    
+    /* get q-expr */
+    lval* x = lval_take(a, 0);
+    /* pop last element */
+    lval* v = lval_pop(x, x->count-1);
+    /* delete unneeded element and return q-expr*/
+    lval_del(v);
+    return x;
+}
+
 lval* builtin(lval* a, char* func) {
     if (strcmp("list", func) == 0) { return builtin_list(a); }
     if (strcmp("head", func) == 0) { return builtin_head(a); }
     if (strcmp("tail", func) == 0) { return builtin_tail(a); }
     if (strcmp("join", func) == 0) { return builtin_join(a); }
     if (strcmp("eval", func) == 0) { return builtin_eval(a); }
+    if (strcmp("cons", func) == 0) { return builtin_cons(a); }
+    if (strcmp("len", func) == 0) { return builtin_len(a); }
+    if (strcmp("init", func) == 0) { return builtin_init(a); }
     if (strstr("+-/*%", func)) { return builtin_op(a, func); }
     lval_del(a);
     return lval_err("Unknown function!");
@@ -376,7 +423,8 @@ int main(int argc, char** argv) {
         "                                                        \
             number   : /-?([0-9]+[.])?[0-9]+/ ;                  \
             symbol   : \"list\" | \"head\" | \"tail\"            \
-                     | \"join\" | \"eval\"                       \
+                     | \"join\" | \"eval\" | \"cons\"            \
+                     | \"len\"  | \"init\"                       \
                      | '+' | '-' | '*' | '/' | '%' ;             \
             sexpr    : '(' <expr>* ')' ;                         \
             qexpr    : '{' <expr>* '}' ;                         \
